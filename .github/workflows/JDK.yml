@@ -57,7 +57,7 @@ jobs:
           name: java-jar
 
       - name: Move downloaded JAR
-        run: mv java-jar/Attendence-0.0.1-SNAPSHOT.jar Attendence-0.0.1-SNAPSHOT.jar
+        run: mv java-jar/userservice-0.0.1-SNAPSHOT.jar userservice-0.0.1-SNAPSHOT.jar
 
       - name: Set up SSH key and known_hosts
         run: |
