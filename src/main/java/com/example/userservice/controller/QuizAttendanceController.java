@@ -1,0 +1,118 @@
+package com.example.userservice.controller;
+
+import com.example.userservice.model.QuizAttendance;
+import com.example.userservice.model.QuizClasses;
+import com.example.userservice.repository.QuizAttendanceRepository;
+import com.example.userservice.repository.QuizClassesRepository;
+import com.example.userservice.security.JwtGenerator;
+import com.example.userservice.service.QuizAttendanceService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/quizAttendance")
+public class QuizAttendanceController {
+
+    @Autowired
+    private QuizAttendanceService quizAttendanceService;
+        @Autowired
+        private QuizAttendanceRepository quizAttendanceRepository;
+
+      @Autowired
+      private QuizClassesRepository quizClassesRepository;
+    // Insert new attendance (POST)
+    @PostMapping("/insert")
+    public ResponseEntity<QuizAttendance> insertAttendance(@RequestBody QuizAttendance attendance,@RequestHeader(value = "Authorization", required = true) String token) {
+        final String finalToken = token.substring(7);
+        String username = JwtGenerator.extractUsername(finalToken);
+
+        Optional<QuizAttendance> data=quizAttendanceRepository.findByIdNumberAndClassNameAndClassNumber(username,attendance.getClassName(),attendance.getClassNumber());
+        if(data.isPresent()){
+            QuizAttendance attendance2=data.get();
+            attendance2.setStatus(attendance.getStatus( ));
+            attendance2.setDatetime(attendance.getDatetime());
+            attendance2.setLateReason(attendance.getLateReason());
+            if( attendance.getLateReason().equals("Absent")){
+                attendance2.setLateReason(" ");
+            }
+
+            return ResponseEntity.ok(quizAttendanceRepository.save(attendance2));
+        }else{
+            QuizAttendance attendance2=new QuizAttendance();
+            attendance2.setIdNumber(username);
+            attendance2.setStatus(attendance.getStatus( ));
+            attendance2.setDatetime(attendance.getDatetime());
+            attendance2.setLateReason(attendance.getLateReason());
+            attendance2.setClassName(attendance.getClassName());
+            attendance2.setClassNumber(attendance.getClassNumber());
+
+            return ResponseEntity.ok(quizAttendanceRepository.save(attendance2));
+        }
+
+    // return null;
+    }
+    // Get attendance by ID (for testing or other purposes)
+    @GetMapping("/{id}")
+    public ResponseEntity<QuizAttendance> getAttendance(@PathVariable String id) {
+        return quizAttendanceService.getAttendanceById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Update attendance status
+    @PutMapping("/update/{id}")
+    public ResponseEntity<QuizAttendance> updateAttendance(
+            @PathVariable String id,
+            @RequestParam String status,
+            @RequestParam String datetime,
+            @RequestParam(required = false) String lateReason,@RequestHeader(value = "Authorization", required = true) String token) {
+
+        final String finalToken = token.substring(7);
+        String username = JwtGenerator.extractUsername(finalToken);
+
+
+        try {
+            QuizAttendance updatedAttendance = quizAttendanceService.updateAttendance(id, status, datetime, lateReason,username);
+            return ResponseEntity.ok(updatedAttendance);  // Return the updated record
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(null);  // Handle not found case
+        }
+    }
+
+    @GetMapping("/getAll")
+    public List<QuizAttendance> getAllNotices(@RequestHeader(value = "Authorization", required = true) String token) {
+
+        final String finalToken = token.substring(7);
+        String username = JwtGenerator.extractUsername(finalToken);
+        List<QuizAttendance> studentAttendance=quizAttendanceRepository.findByIdNumber(username);
+        List<QuizClasses> classes=quizClassesRepository.findAll();
+
+        return getAllAttendance(studentAttendance,classes);
+    }
+
+    public List<QuizAttendance> getAllAttendance(List<QuizAttendance> studentAttendance,List<QuizClasses> classes) {
+         List<QuizAttendance> studentAttendance1=new ArrayList<>();
+
+
+        for(QuizClasses classes1:classes) {
+            if(studentAttendance.stream().noneMatch(attendance -> attendance.getClassNumber().equals(classes1.getClassNumber()) && attendance.getClassName().equals(classes1.getClassName()))) {
+                QuizAttendance attendance=new QuizAttendance();
+                attendance.setClassNumber(classes1.getClassNumber());
+                attendance.setClassName(classes1.getClassName());
+                attendance.setDatetime(classes1.getDatetime().toString());
+
+                studentAttendance1.add(attendance);
+            }else {
+                studentAttendance1.add(studentAttendance.stream().filter(attendance -> attendance.getClassNumber().equals(classes1.getClassNumber()) && attendance.getClassName().equals(classes1.getClassName())).findFirst().get());
+            }
+        }
+
+        return studentAttendance1;
+    }
+}
