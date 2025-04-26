@@ -43,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: java-jar
-          path: target/userservice-0.0.1-SNAPSHOT.jar
+          path: userServiceMicroService/target/userservice-0.0.1-SNAPSHOT.jar
 
   deploy:
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true' }}
@@ -56,9 +56,8 @@ jobs:
         with:
           name: java-jar
 
-      - name: Move JAR out of folder
-        run: mv java-jar/userservice-0.0.1-SNAPSHOT.jar .
-
+      - name: Move downloaded JAR
+        run: mv java-jar/Attendence-0.0.1-SNAPSHOT.jar Attendence-0.0.1-SNAPSHOT.jar
 
       - name: Set up SSH key and known_hosts
         run: |
