@@ -56,6 +56,11 @@ jobs:
         with:
           name: java-jar
 
+
+
+      - name: Debug artifact contents
+        run: ls -R java-jar
+
       - name: Set up SSH key and known_hosts
         run: |
           mkdir -p ~/.ssh
