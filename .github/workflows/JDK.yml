@@ -60,11 +60,7 @@ jobs:
       - name: List downloaded files
         run: |
           echo "Listing downloaded files..."
-           ls -R
-          
-
-      - name: Move JAR to current directory
-        run: mv java-jar/quizbackend-0.0.1-SNAPSHOT.jar .
+          ls -R
 
       - name: Set up SSH key and known_hosts
         run: |
