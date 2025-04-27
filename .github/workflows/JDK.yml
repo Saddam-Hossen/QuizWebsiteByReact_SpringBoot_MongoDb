@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - master
   workflow_dispatch:
     inputs:
       deploy:
@@ -43,7 +44,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: java-jar
-          path: userServiceMicroService/target/userservice-0.0.1-SNAPSHOT.jar
+          path: /target/quizbackend-0.0.1-SNAPSHOT.jar
 
   deploy:
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true' }}
@@ -56,8 +57,7 @@ jobs:
         with:
           name: java-jar
 
-      - name: Move downloaded JAR
-        run: mv java-jar/userservice-0.0.1-SNAPSHOT.jar userservice-0.0.1-SNAPSHOT.jar
+
 
       - name: Set up SSH key and known_hosts
         run: |
@@ -71,8 +71,8 @@ jobs:
           scp -i ~/.ssh/key.pem \
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=~/.ssh/do_known_hosts \
-            userservice-0.0.1-SNAPSHOT.jar \
-            ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }}:/www/wwwroot/snvn.deepseahost.com/quizbackend/userservice.jar
+            quizbackend-0.0.1-SNAPSHOT.jar \
+            ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }}:/www/wwwroot/snvn.deepseahost.com/quizbackend/quizbackend.jar
 
       - name: Deploy with rollback support
         run: |
@@ -83,28 +83,28 @@ jobs:
               cd /www/wwwroot/snvn.deepseahost.com/quizbackend
 
               echo '📦 Backing up current app...'
-              cp userservice.jar userservice.jar.bak || echo 'No previous app to back up'
+              cp quizbackend.jar quizbackend.jar.bak || echo 'No previous app to back up'
 
               echo '🛑 Stopping current app...'
               sudo lsof -i :3083 -t | xargs -r kill -9 || echo 'No running app to stop'
 
               echo '🚀 Starting new app...'
-              nohup java -Xms16m -Xmx32m -jar userservice.jar --server.port=3083 > app.log 2>&1 &
+              nohup java -Xms32m -Xmx64m -jar quizbackend.jar --server.port=3083 > app.log 2>&1 &
 
               echo '⏳ Waiting for app to start...'
               for i in {1..10}; do
                 sleep 2
-                if pgrep -f userservice.jar > /dev/null; then
-                  echo '✅ userservice.jar is now running!'
+                if pgrep -f quizbackend.jar > /dev/null; then
+                  echo '✅ quizbackend.jar is now running!'
                   date '+🕒 Started at %Y-%m-%d %H:%M:%S'
                   break
                 fi
               done
 
-              if ! pgrep -f userservice.jar > /dev/null; then
+              if ! pgrep -f quizbackend.jar > /dev/null; then
                 echo '❌ App failed to start. Rolling back...'
-                cp userservice.jar.bak userservice.jar
-                nohup java -Xms16m -Xmx32m -jar userservice.jar --server.port=3083 > app.log 2>&1 &
+                cp quizbackend.jar.bak quizbackend.jar
+                nohup java -Xms32m -Xmx64m -jar quizbackend.jar --server.port=3083 > app.log 2>&1 &
                 echo '🔁 Rollback started...'
               fi
 
