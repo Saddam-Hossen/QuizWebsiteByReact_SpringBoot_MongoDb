@@ -11,6 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,23 +36,29 @@ public class QuizAttendanceController {
         final String finalToken = token.substring(7);
         String username = JwtGenerator.extractUsername(finalToken);
 
+        Optional<QuizClasses> inf0=quizClassesRepository.findByClassNameAndClassNumber(attendance.getClassName(),attendance.getClassNumber());
+        String classGivenTime=inf0.get().getDatetime().toString();
+        System.out.println(classGivenTime+"  "+attendance.getDatetime()+"  "+attendance.getStatus( ));
         Optional<QuizAttendance> data=quizAttendanceRepository.findByIdNumberAndClassNameAndClassNumber(username,attendance.getClassName(),attendance.getClassNumber());
         if(data.isPresent()){
             QuizAttendance attendance2=data.get();
-            attendance2.setStatus(attendance.getStatus( ));
+            attendance2.setStatus(checkArrivalStatus(classGivenTime,attendance.getDatetime()));
             attendance2.setDatetime(attendance.getDatetime());
             attendance2.setLateReason(attendance.getLateReason());
+             attendance2.setCreateDatetime(getDhakaTimeString());
 
 
             return ResponseEntity.ok(quizAttendanceRepository.save(attendance2));
         }else{
             QuizAttendance attendance2=new QuizAttendance();
             attendance2.setIdNumber(username);
-            attendance2.setStatus(attendance.getStatus( ));
+            attendance2.setStatus(checkArrivalStatus(classGivenTime,attendance.getDatetime()));
+
             attendance2.setDatetime(attendance.getDatetime());
             attendance2.setLateReason(attendance.getLateReason());
             attendance2.setClassName(attendance.getClassName());
             attendance2.setClassNumber(attendance.getClassNumber());
+            attendance2.setCreateDatetime(getDhakaTimeString());
 
             return ResponseEntity.ok(quizAttendanceRepository.save(attendance2));
         }
@@ -104,6 +114,14 @@ public class QuizAttendanceController {
                 attendance.setClassNumber(classes1.getClassNumber());
                 attendance.setClassName(classes1.getClassName());
                 attendance.setDatetime(classes1.getDatetime().toString());
+                // Convert class datetime to LocalDateTime and add 16 hours
+                LocalDateTime classTime = classes1.getDatetime();
+                LocalDateTime classPlus16Hours = classTime.plusHours(3);
+
+                // If class time + 16 hours > current time, set status as Absent
+                if (LocalDateTime.now().isAfter(classPlus16Hours)) {
+                    attendance.setStatus("Absent");
+                }
 
                 studentAttendance1.add(attendance);
             }else {
@@ -114,5 +132,27 @@ public class QuizAttendanceController {
         }
 
         return studentAttendance1;
+    }
+    public static String getDhakaTimeString() {
+        ZoneId dhakaZone = ZoneId.of("Asia/Dhaka");
+        ZonedDateTime zonedDateTime = ZonedDateTime.now(dhakaZone);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        return zonedDateTime.format(formatter);
+    }
+
+    // Method to check if the person is Present or Late
+    public static String checkArrivalStatus(String scheduledTime, String actualTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+        // Parse the date-time strings into LocalDateTime objects
+        LocalDateTime scheduledDateTime = LocalDateTime.parse(scheduledTime, formatter);
+        LocalDateTime actualDateTime = LocalDateTime.parse(actualTime, formatter);
+
+        // Compare the actual time with the scheduled time
+        if (actualDateTime.isBefore(scheduledDateTime) || actualDateTime.equals(scheduledDateTime)) {
+            return "Present"; // If actual time is on or before the scheduled time
+        } else {
+            return "Late"; // If actual time is after the scheduled time
+        }
     }
 }

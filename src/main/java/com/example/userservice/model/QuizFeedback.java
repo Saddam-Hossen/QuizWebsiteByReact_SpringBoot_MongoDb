@@ -7,6 +7,7 @@ public class QuizFeedback {
     @Id
     private String id;
 
+    private String dateTime;
     private String idNumber;
     private String className;
     private String classNumber;
@@ -72,7 +73,15 @@ public class QuizFeedback {
     public QuizFeedback() {
     }
 
-    public QuizFeedback(String idNumber,String className, String classNumber, String trainerName) {
+    public String getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(String dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public QuizFeedback(String idNumber, String className, String classNumber, String trainerName) {
         this.idNumber=idNumber;
         this.className = className;
         this.classNumber = classNumber;
@@ -83,7 +92,8 @@ public class QuizFeedback {
     public String toString() {
         return "QuizFeedback{" +
                 "id='" + id + '\'' +
-                ", IdNumber='" + idNumber + '\'' +
+                ", dateTime='" + dateTime + '\'' +
+                ", idNumber='" + idNumber + '\'' +
                 ", className='" + className + '\'' +
                 ", classNumber='" + classNumber + '\'' +
                 ", trainerName='" + trainerName + '\'' +

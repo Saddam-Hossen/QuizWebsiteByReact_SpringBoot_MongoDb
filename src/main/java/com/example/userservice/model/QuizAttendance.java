@@ -14,6 +14,8 @@ public class QuizAttendance {
     private String lateReason;
     private String datetime;
 
+    private String createDatetime;
+
     // Getters and setters
     public String getId() {
         return id;
@@ -21,6 +23,14 @@ public class QuizAttendance {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getCreateDatetime() {
+        return createDatetime;
+    }
+
+    public void setCreateDatetime(String createDatetime) {
+        this.createDatetime = createDatetime;
     }
 
     public String getIdNumber() {
@@ -89,6 +99,7 @@ public class QuizAttendance {
                 ", status='" + status + '\'' +
                 ", lateReason='" + lateReason + '\'' +
                 ", datetime='" + datetime + '\'' +
+                ", createDatetime='" + createDatetime + '\'' +
                 '}';
     }
 }

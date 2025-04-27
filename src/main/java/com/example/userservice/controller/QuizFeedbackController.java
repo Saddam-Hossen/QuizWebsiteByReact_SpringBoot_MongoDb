@@ -69,10 +69,13 @@ public class QuizFeedbackController {
                 attendance.setClassNumber(classes1.getClassNumber());
                 attendance.setClassName(classes1.getClassName());
                 attendance.setTrainerName(classes1.getTrainerName());
-
+                attendance.setDateTime(classes1.getDatetime().toString());
+                // System.out.println(attendance.getDateTime());
                 studentAttendance1.add(attendance);
             }else {
-                studentAttendance1.add(studentFeedback.stream().filter(attendance -> attendance.getClassNumber().equals(classes1.getClassNumber()) && attendance.getClassName().equals(classes1.getClassName())).findFirst().get());
+                QuizFeedback attendance2=studentFeedback.stream().filter(attendance -> attendance.getClassNumber().equals(classes1.getClassNumber()) && attendance.getClassName().equals(classes1.getClassName())).findFirst().get();
+                attendance2.setDateTime(classes1.getDatetime().toString());
+                studentAttendance1.add(attendance2);
             }
         }
 
