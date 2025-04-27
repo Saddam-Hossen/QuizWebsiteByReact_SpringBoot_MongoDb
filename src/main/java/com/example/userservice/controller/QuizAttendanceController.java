@@ -38,9 +38,7 @@ public class QuizAttendanceController {
             attendance2.setStatus(attendance.getStatus( ));
             attendance2.setDatetime(attendance.getDatetime());
             attendance2.setLateReason(attendance.getLateReason());
-            if( attendance.getLateReason().equals("Absent")){
-                attendance2.setLateReason(" ");
-            }
+
 
             return ResponseEntity.ok(quizAttendanceRepository.save(attendance2));
         }else{
@@ -109,7 +107,9 @@ public class QuizAttendanceController {
 
                 studentAttendance1.add(attendance);
             }else {
-                studentAttendance1.add(studentAttendance.stream().filter(attendance -> attendance.getClassNumber().equals(classes1.getClassNumber()) && attendance.getClassName().equals(classes1.getClassName())).findFirst().get());
+                QuizAttendance attendance2=studentAttendance.stream().filter(attendance -> attendance.getClassNumber().equals(classes1.getClassNumber()) && attendance.getClassName().equals(classes1.getClassName())).findFirst().get();
+                attendance2.setDatetime(classes1.getDatetime().toString());
+                studentAttendance1.add(attendance2);
             }
         }
 
