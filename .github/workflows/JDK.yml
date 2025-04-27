@@ -119,6 +119,6 @@ jobs:
               echo ''
               echo '🔍 Running Java Processes:'
               ps aux | grep java | grep -v grep
-              echo '📄 Last 10 lines do of app.log:'
+              echo '📄 Last 10 lines dos of app.log:'
               tail -n 10 app.log
             "
