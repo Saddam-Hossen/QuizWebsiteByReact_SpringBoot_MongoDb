@@ -50,6 +50,19 @@ public class QuizNoticeController {
         }
     }
 
+    @PostMapping("/delete")
+    public ResponseEntity<String> deleteQuizNotice(@RequestBody Map<String, String> body) {
+        try {
+            String id = body.get("id");
+            if (id == null) {
+                return ResponseEntity.badRequest().body("❌ Missing ID in request body.");
+            }
 
-
+            noticeRepo.deleteById(id);
+            return ResponseEntity.ok("✅ Quiz notice deleted successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("❌ Failed to delete quiz notice.");
+        }
+    }
 }
