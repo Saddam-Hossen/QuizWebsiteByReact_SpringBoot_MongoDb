@@ -58,8 +58,8 @@ public class Quiz_StudentController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(HttpServletRequest request, HttpServletResponse response,
                                                      FilterChain chain, @RequestBody Map<String, String> requestData) {
-       // String filePath = "C:\\Users\\01957\\Downloads/quiz.xlsx";
-        //readExcelFile(filePath);
+        //String filePath = "C:\\Users\\01957\\Downloads/abc.xlsx";
+       // readExcelFile(filePath);
         //System.out.println("Authenticated User: " + requestData);
         // readCSVForInsertUser("C:\\Users\\01957\\Downloads/userData.csv");
 
@@ -103,7 +103,7 @@ public class Quiz_StudentController {
         return ResponseEntity.ok(responseData);
     }
 
-    public  void readExcelFile(String filePath) {
+    public void readExcelFile(String filePath) {
         try (FileInputStream fis = new FileInputStream(filePath);
              Workbook workbook = new XSSFWorkbook(fis)) {
 
@@ -112,17 +112,24 @@ public class Quiz_StudentController {
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue; // Skip header row
 
-                String id = formatCell(row.getCell(0));
-                String password = formatCell(row.getCell(1));
-                quiz_StudentRepository.save(new Quiz_Student(id,
-                        passwordEncoder.encode(password)));
-               // System.out.println("ID: " + id + ", Password: " + password);
+                String id = formatCell(row.getCell(1));
+                String password = formatCell(row.getCell(2));
+
+                // Skip if id or password is null or empty
+                if (id == null || id.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+                    System.out.println("⚠️ Skipping row " + (row.getRowNum() + 1) + " due to empty ID or Password.");
+                    continue;
+                }
+
+                quiz_StudentRepository.save(new Quiz_Student(id, passwordEncoder.encode(password)));
+                System.out.println("✅ Saved - ID: " + id + ", Password: " + password);
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     private  String formatCell(Cell cell) {
         if (cell == null) return "";
