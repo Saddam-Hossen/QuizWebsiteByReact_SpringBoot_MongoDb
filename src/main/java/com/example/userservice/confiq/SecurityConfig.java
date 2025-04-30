@@ -52,7 +52,7 @@ public class SecurityConfig {
 
         if ("prod".equalsIgnoreCase(environment)) {
             System.out.println("Online checking:");
-            return new String[]{"https://159.89.172.251:3083","http://159.89.172.251:3084"};
+            return new String[]{"https://trainingappbackend.deepseahost.com","https://trainingapp.deepseahost.com"};
         } else {
             System.out.println("local host checking:");
 
