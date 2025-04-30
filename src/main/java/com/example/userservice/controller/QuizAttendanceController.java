@@ -38,15 +38,14 @@ public class QuizAttendanceController {
 
         Optional<QuizClasses> inf0=quizClassesRepository.findByClassNameAndClassNumber(attendance.getClassName(),attendance.getClassNumber());
         String classGivenTime=inf0.get().getDatetime().toString();
-        System.out.println(classGivenTime+"  "+attendance.getDatetime()+"  "+attendance.getStatus( ));
+       // System.out.println(classGivenTime+"  "+attendance.getDatetime()+"  "+attendance.getStatus( ));
         Optional<QuizAttendance> data=quizAttendanceRepository.findByIdNumberAndClassNameAndClassNumber(username,attendance.getClassName(),attendance.getClassNumber());
         if(data.isPresent()){
             QuizAttendance attendance2=data.get();
             attendance2.setStatus(checkArrivalStatus(classGivenTime,attendance.getDatetime()));
             attendance2.setDatetime(attendance.getDatetime());
             attendance2.setLateReason(attendance.getLateReason());
-             attendance2.setCreateDatetime(getDhakaTimeString());
-
+            attendance2.setCreateDatetime(getDhakaTimeString());
 
             return ResponseEntity.ok(quizAttendanceRepository.save(attendance2));
         }else{

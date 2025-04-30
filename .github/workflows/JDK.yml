@@ -5,12 +5,6 @@ on:
     branches:
       - main
       - master
-  workflow_dispatch:
-    inputs:
-      deploy:
-        description: 'Deploy to server after build?'
-        required: false
-        default: 'true'
 
 jobs:
   build:
@@ -47,7 +41,6 @@ jobs:
           path: target/quizbackend-0.0.1-SNAPSHOT.jar
 
   deploy:
-    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true' }}
     needs: build
     runs-on: ubuntu-latest
 
@@ -58,9 +51,7 @@ jobs:
           name: java-jar
 
       - name: List downloaded files
-        run: |
-          echo "Listing downloaded files..."
-          ls -R
+        run: ls -R
 
       - name: Set up SSH key and known_hosts
         run: |
@@ -68,11 +59,6 @@ jobs:
           echo "${{ secrets.DO_SSH_KEY }}" > ~/.ssh/key.pem
           chmod 600 ~/.ssh/key.pem
           ssh-keyscan -H ${{ secrets.DO_HOST }} >> ~/.ssh/do_known_hosts
-
-      - name: Debug print secrets
-        run: |
-          echo "Uploading to ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }}"
-    
 
       - name: Upload new JAR to DigitalOcean
         run: |
@@ -119,6 +105,6 @@ jobs:
               echo ''
               echo '🔍 Running Java Processes:'
               ps aux | grep java | grep -v grep
-              echo '📄 Last 10 lines dos of app.log:'
+              echo '📄 Last 10 lines of app.log:'
               tail -n 10 app.log
             "
