@@ -20,7 +20,7 @@ public class QuizNoticeController {
 
     @PostMapping("/insert")
     public ResponseEntity<?> save(@RequestBody QuizNotice notice) {
-        notice.setDatetime(new Date());
+       // notice.setDatetime(new Date());
         QuizNotice saved = noticeRepo.save(notice);
         return ResponseEntity.ok(saved);
     }
