@@ -102,6 +102,12 @@ public class QuizAttendanceController {
 
         return getAllAttendance(studentAttendance,classes);
     }
+    @GetMapping("/getAllAdmin")
+    public List<QuizAttendance> getAllNoticesAdmin(@RequestHeader(value = "Authorization", required = true) String token) {
+
+
+        return quizAttendanceRepository.findAll();
+    }
 
     public List<QuizAttendance> getAllAttendance(List<QuizAttendance> studentAttendance,List<QuizClasses> classes) {
          List<QuizAttendance> studentAttendance1=new ArrayList<>();

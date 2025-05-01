@@ -57,6 +57,10 @@ public class QuizFeedbackController {
 
         return getAllAttendance(studentAttendance,classes);
 
+    }
+    @GetMapping("/getAllAdmin")
+    public List<QuizFeedback> getAllNoticesAdmin(@RequestHeader(value = "Authorization", required = true) String token) {
+        return quizFeedbackRepository.findAll();
 
     }
     public List<QuizFeedback> getAllAttendance(List<QuizFeedback> studentFeedback,List<QuizClasses> classes) {
