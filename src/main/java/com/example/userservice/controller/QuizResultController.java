@@ -94,6 +94,7 @@ public class QuizResultController {
                 attendance.setClassName(classes1.getClassName());
 
                 studentAttendance1.add(attendance);
+
             }else {
                 studentAttendance1.add(studentAttendance.stream().filter(attendance -> attendance.getClassNumber().equals(classes1.getClassNumber()) && attendance.getClassName().equals(classes1.getClassName())).findFirst().get());
             }
