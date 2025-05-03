@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface QuizResultRepository extends MongoRepository<QuizResult, String> {
     List<QuizResult> findByIdNumber(String studentIdNumber);
-
+    void deleteByClassName(String className);
 
 }
 

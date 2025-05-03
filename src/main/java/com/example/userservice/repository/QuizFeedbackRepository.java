@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface QuizFeedbackRepository extends MongoRepository<QuizFeedback, String> {
     List<QuizFeedback> findByIdNumber(String studentIdNumber);
     Optional<QuizFeedback> findByIdNumberAndClassNameAndClassNumber(String studentIdNumber, String className, String classNumber);
+    void deleteByClassName(String className);
 }

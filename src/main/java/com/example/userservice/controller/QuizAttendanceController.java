@@ -64,6 +64,62 @@ public class QuizAttendanceController {
 
     // return null;
     }
+    @PostMapping("/insertFromAdmin")
+    public ResponseEntity<QuizAttendance> insertAttendanceFromAdmin(@RequestBody QuizAttendance attendance,@RequestHeader(value = "Authorization", required = true) String token) {
+
+        String username = attendance.getIdNumber();
+
+        Optional<QuizClasses> inf0=quizClassesRepository.findByClassNameAndClassNumber(attendance.getClassName(),attendance.getClassNumber());
+        String classGivenTime=inf0.get().getDatetime().toString();
+         System.out.println(classGivenTime+"  "+attendance.getDatetime()+"  "+attendance.getStatus( ));
+        Optional<QuizAttendance> data=quizAttendanceRepository.findByIdNumberAndClassNameAndClassNumber(username,attendance.getClassName(),attendance.getClassNumber());
+        if(data.isPresent()){
+            QuizAttendance attendance2=data.get();
+            attendance2.setStatus(checkArrivalStatus(classGivenTime,attendance.getDatetime()));
+            attendance2.setDatetime(attendance.getDatetime());
+            attendance2.setLateReason(attendance.getLateReason());
+            attendance2.setCreateDatetime(attendance.getCreateDatetime());
+
+            return ResponseEntity.ok(quizAttendanceRepository.save(attendance2));
+        }else{
+            QuizAttendance attendance2=new QuizAttendance();
+            attendance2.setIdNumber(username);
+            attendance2.setStatus(checkArrivalStatus(classGivenTime,attendance.getDatetime()));
+
+            attendance2.setDatetime(attendance.getDatetime());
+            attendance2.setLateReason(attendance.getLateReason());
+            attendance2.setClassName(attendance.getClassName());
+            attendance2.setClassNumber(attendance.getClassNumber());
+            attendance2.setCreateDatetime(attendance.getCreateDatetime());
+
+            return ResponseEntity.ok(quizAttendanceRepository.save(attendance2));
+        }
+
+        // return null;
+    }
+    @PostMapping("/update")
+    public ResponseEntity<QuizAttendance> insertAttendanceUpdate(@RequestBody QuizAttendance attendance,@RequestHeader(value = "Authorization", required = true) String token) {
+        System.out.println(attendance.toString());
+        Optional<QuizAttendance> data=quizAttendanceRepository.findById(attendance.getId());
+         if(data.isPresent()){
+             QuizAttendance attendance2=data.get();
+             attendance2.setDatetime(attendance.getDatetime());
+             attendance2.setLateReason(attendance.getLateReason());
+             attendance2.setCreateDatetime(getDhakaTimeString());
+             return ResponseEntity.ok(quizAttendanceRepository.save(attendance2));
+         }
+        return ResponseEntity.ok(null);
+
+        // return null;
+    }
+    @PostMapping("/delete")
+    public ResponseEntity<QuizAttendance> insertAttendanceDelete(@RequestBody QuizAttendance attendance,@RequestHeader(value = "Authorization", required = true) String token) {
+       // System.out.println(attendance.toString());
+        quizAttendanceRepository.deleteById(attendance.getId());
+        return ResponseEntity.ok(null);
+
+        // return null;
+    }
     // Get attendance by ID (for testing or other purposes)
     @GetMapping("/{id}")
     public ResponseEntity<QuizAttendance> getAttendance(@PathVariable String id) {

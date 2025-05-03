@@ -3,9 +3,8 @@ package com.example.userservice.controller;
 import com.example.userservice.model.QuizAttendance;
 import com.example.userservice.model.QuizClasses;
 import com.example.userservice.model.QuizFeedback;
-import com.example.userservice.repository.QuizAttendanceRepository;
-import com.example.userservice.repository.QuizClassesRepository;
-import com.example.userservice.repository.QuizFeedbackRepository;
+import com.example.userservice.repository.*;
+import com.example.userservice.service.QuizFeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +24,11 @@ public class QuizClassesController {
     private QuizAttendanceRepository quizAttendanceRepository;
     @Autowired
     private QuizFeedbackRepository quizFeedbackRepository;
+    @Autowired
+    private QuizLinkRepository quizLinkRepository;
+    @Autowired
+    private QuizResultRepository quizResultRepository;
+
 
 
     @PostMapping("/insert")
@@ -52,10 +56,17 @@ public class QuizClassesController {
     @PostMapping("/indel")
     public ResponseEntity<String> deleteNotice(@RequestBody Map<String, String> body) {
         String id = body.get("id");
-        System.out.println("Deleting class with ID: " + id);
-
+       // System.out.println("Deleting class with ID: " + id);
+         Optional<QuizClasses> quizClassesOpt = quizClassesRepository.findById(id);
         if (quizClassesRepository.existsById(id)) {
             quizClassesRepository.deleteById(id);
+            // attendance, feedback,link,result
+            String className = quizClassesOpt.get().getClassName();
+            quizAttendanceRepository.deleteByClassName(className);
+            quizFeedbackRepository.deleteByClassName(className);
+            quizLinkRepository.deleteByClassName(className);
+            quizResultRepository.deleteByClassName(className);
+
             return ResponseEntity.ok("Deleted");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found");

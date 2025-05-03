@@ -9,4 +9,5 @@ public interface QuizAttendanceRepository extends MongoRepository<QuizAttendance
     // You can add custom queries if needed
   List<QuizAttendance> findByIdNumber(String studentIdNumber);
   Optional<QuizAttendance> findByIdNumberAndClassNameAndClassNumber(String studentIdNumber,String className,String classNumber);
+  void deleteByClassName(String className);
 }
