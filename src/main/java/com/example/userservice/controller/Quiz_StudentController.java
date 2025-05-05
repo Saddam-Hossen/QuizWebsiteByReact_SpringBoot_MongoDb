@@ -1,6 +1,8 @@
 package com.example.userservice.controller;
 import com.example.userservice.model.Employee;
+import com.example.userservice.model.Pabna;
 import com.example.userservice.model.Quiz_Student;
+import com.example.userservice.repository.PabnaRepository;
 import com.example.userservice.repository.Quiz_StudentRepository;
 import com.example.userservice.security.JwtFilter;
 import com.example.userservice.security.JwtGenerator;
@@ -28,6 +30,10 @@ import java.util.Optional;
 @RequestMapping("/api/student")
 public class Quiz_StudentController {
 
+    @Autowired
+    private PabnaRepository pabnaRepository;
+    @Autowired
+    private PostService postService;
     @Autowired
     private Quiz_StudentRepository quiz_StudentRepository;
     @Autowired
@@ -58,7 +64,7 @@ public class Quiz_StudentController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(HttpServletRequest request, HttpServletResponse response,
                                                      FilterChain chain, @RequestBody Map<String, String> requestData) {
-       // String filePath = "C:\\Users\\01957\\Downloads/abc.xlsx";
+       // String filePath = "C:\\Users\\01957\\Downloads/pabna.xlsx";
        // readExcelFile(filePath);
         //System.out.println("Authenticated User: " + requestData);
         // readCSVForInsertUser("C:\\Users\\01957\\Downloads/userData.csv");
@@ -99,6 +105,9 @@ public class Quiz_StudentController {
         if(username.equals("Admin")){
             responseData.put("role","Admin");
         }
+        if(username.equals("pabna")){
+            responseData.put("role","pabna");
+        }
 
         return ResponseEntity.ok(responseData);
     }
@@ -112,24 +121,26 @@ public class Quiz_StudentController {
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue; // Skip header row
 
-                String id = formatCell(row.getCell(1));
-                String password = formatCell(row.getCell(2));
+                String idNumber = formatCell(row.getCell(0));
+                String name = formatCell(row.getCell(1));
+                String parentIdNumber = formatCell(row.getCell(2));
+                String level = formatCell(row.getCell(3));
 
-                // Skip if id or password is null or empty
-                if (id == null || id.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-                    System.out.println("⚠️ Skipping row " + (row.getRowNum() + 1) + " due to empty ID or Password.");
+                // Skip if idNumber or name is null or empty
+                if (idNumber == null || idNumber.trim().isEmpty() || name == null || name.trim().isEmpty()) {
+                    System.out.println("⚠️ Skipping row " + (row.getRowNum() + 1) + " due to empty ID Number or Name.");
                     continue;
                 }
 
-                quiz_StudentRepository.save(new Quiz_Student(id, passwordEncoder.encode(password)));
-                System.out.println("✅ Saved - ID: " + id + ", Password: " + password);
+                // Save the record
+                pabnaRepository.save(new Pabna(idNumber, name, parentIdNumber, level));
+                System.out.println("✅ Saved - ID Number: " + idNumber + ", Name: " + name);
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
     private  String formatCell(Cell cell) {
         if (cell == null) return "";
